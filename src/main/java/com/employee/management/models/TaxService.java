@@ -1,9 +1,12 @@
 package com.employee.management.models;
 
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.Locale;
 
 import javax.money.CurrencyUnit;
@@ -16,41 +19,17 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class TaxService {
+	
+	public static List<TaxThreshHold> taxtThreshHolds = List.of(
+		new TaxThreshHold(BigDecimal.valueOf(0.0), BigDecimal.valueOf(18200), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.0)),
+		new TaxThreshHold(BigDecimal.valueOf(18201), BigDecimal.valueOf(37000), BigDecimal.valueOf(0.0), BigDecimal.valueOf(0.19)),
+		new TaxThreshHold(BigDecimal.valueOf(37001), BigDecimal.valueOf(87000), BigDecimal.valueOf(3572.0), BigDecimal.valueOf(0.325)),
+		new TaxThreshHold(BigDecimal.valueOf(87001), BigDecimal.valueOf(180000), BigDecimal.valueOf(19822.0), BigDecimal.valueOf(0.37)),
+		new TaxThreshHold(BigDecimal.valueOf(180001), BigDecimal.valueOf(99999999999999999999999999.0), BigDecimal.valueOf(54232.0), BigDecimal.valueOf(0.45))
+	);
 
-	public double CalculateIncomeTax(int salary) {
-		String taxJsonString = "";
-		try {
-			String name = new File(".").getCanonicalPath();
-			File file = new File(name, "/" + "tax_brackets.json");
-
-			// Creating an object of BufferedReader class
-			BufferedReader br = new BufferedReader(new FileReader(file));
-
-			String str;
-
-			while ((str = br.readLine()) != null)
-				taxJsonString = taxJsonString + str;
-		} catch (Exception e) {
-			// TODO: handle exception
-		}
-
-		JSONArray taxJsonArray = new JSONArray(taxJsonString);
-		CurrencyUnit usd = Monetary.getCurrency(Locale.US);
-		for (int i = 0; i < taxJsonArray.length(); i++) {
-
-			JSONObject obj = taxJsonArray.getJSONObject(i);
-			Double min = Double.parseDouble((String) obj.get("min"));
-			Double max = Double.parseDouble((String) obj.get("max"));
-			Double additionalAmount = Double.parseDouble((String) obj.get("additional_amount"));
-			Double taxPercentage = Double.parseDouble((String) obj.get("tax_percent_multiplier"));
-
-			if (salary >= min && salary <= max) {
-				Money money = Money.of(salary - (min != 0 ? min - 1 : 0), usd);
-				money = money.multiply(taxPercentage).add(Money.of(additionalAmount, usd)).divideToIntegralValue(12);
-				return money.getNumber().doubleValue();
-			}
-		}
-		return 0D;
+	public double calculateTax(BigDecimal grossIncome) {
+		Optional<Double> tax = taxtThreshHolds.stream().map(t -> t.calculateTax(grossIncome)).filter(t -> t != 0D).findFirst();
+		return tax.get();
 	}
-
 }

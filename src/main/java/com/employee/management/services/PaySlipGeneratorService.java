@@ -1,5 +1,7 @@
 package com.employee.management.services;
 
+import java.math.BigDecimal;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import com.employee.management.models.DataEmployee;
 import com.employee.management.models.Payslip;
-import com.employee.management.models.TaxService;
 
 @Service
 public class PaySlipGeneratorService {
@@ -52,7 +53,7 @@ public class PaySlipGeneratorService {
 		rsltdJson.put("fromDate", paySlip.getStartDate());
 		rsltdJson.put("endDate", paySlip.getEndDate());
 		rsltdJson.put("grossIncome", paySlip.CalculateGrossPay());
-		rsltdJson.put("incomeTax", taxService.CalculateIncomeTax(paySlip.getSalary()));
+		rsltdJson.put("incomeTax", taxService.calculateTax(BigDecimal.valueOf(paySlip.getSalary())));
 		rsltdJson.put("superannuation", paySlip.CalculateSuper());
 		rsltdJson.put("netIncome", paySlip.CalculateNetIncome(rsltdJson.getDouble("incomeTax")));
 
