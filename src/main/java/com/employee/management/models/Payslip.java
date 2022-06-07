@@ -8,7 +8,6 @@ import javax.money.MonetaryAmount;
 
 import org.javamoney.moneta.Money;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
 @Component
 public class Payslip {

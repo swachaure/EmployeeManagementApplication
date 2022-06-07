@@ -1,13 +1,5 @@
 package com.employee.management.models;
 
-import java.util.Locale;
-
-import javax.money.CurrencyUnit;
-import javax.money.Monetary;
-import javax.money.MonetaryAmount;
-
-import org.javamoney.moneta.Money;
-import org.json.JSONObject;
 import org.springframework.stereotype.Component;
 
 @Component
